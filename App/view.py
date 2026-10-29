@@ -59,8 +59,7 @@ def print_menu():
     print("2- Cargar información de crimenes")
     print("3- Consultar crimenes en un rango de fechas")
     print("4- Consultar crimenes por codigo y fecha")
-    #TODO Agregar opción 5 en el menú, consultar por REPORTING_AREA
-    print("5 - Consultar crimenes por Reporting Area ")
+    print("5- Consultar crimenes por Reporting Area")
     print("0- Salir")
     print("*******************************************")
 
@@ -71,18 +70,26 @@ def main():
     """
     # bandera para controlar el ciclo del menu
     working = True
+    control = None
     crimefile = 'Boston Crimes//crime-utf8.csv'
 
     # ciclo del menu
     while working:
         print_menu()
-        inputs = input("Seleccione una opción para continuar\n")
+        inputs = input("Seleccione una opción para continuar\n").strip()
+        if not inputs or not inputs[0].isdigit():
+            print("Opción no válida")
+            continue
             
-        if int(inputs[0]) == 1:
+        option = int(inputs[0])
+        if option == 1:
             print("\nInicializando....")
             # cont es el controlador que se usará de acá en adelante
             control = new_logic()
-        elif int(inputs[0]) == 2:
+        elif option == 2:
+            if control is None:
+                print("\nDebe inicializar el analizador primero.")
+                continue
             print("\nCargando información de crimenes ....")
             logic.load_data(control, crimefile)
             print('Crimenes cargados: ' + str(logic.crimes_size(control)))
@@ -91,29 +98,49 @@ def main():
             print('Menor Llave: ' + str(logic.min_key(control)))
             print('Mayor Llave: ' + str(logic.max_key(control)))
 
-        elif int(inputs[0]) == 3:
+        elif option == 3:
+            if control is None:
+                print("\nDebe inicializar el analizador primero.")
+                continue
             print("\nBuscando crimenes en un rango de fechas: ")
             initialDate = input("Fecha Inicial (YYYY-MM-DD): ")
             finalDate = input("Fecha Final (YYYY-MM-DD): ")
-            total = logic.get_crimes_by_range(control, initialDate, finalDate)
+            try:
+                total = logic.get_crimes_by_range(control, initialDate, finalDate)
+            except ValueError:
+                print("\nLas fechas deben tener el formato YYYY-MM-DD.")
+                continue
             print("\nTotal de crimenes en el rango de fechas: " + str(total))
 
-        elif int(inputs[0]) == 4:
+        elif option == 4:
+            if control is None:
+                print("\nDebe inicializar el analizador primero.")
+                continue
             print("\nBuscando crimenes x grupo de ofensa en una fecha: ")
             initialDate = input("Fecha (YYYY-MM-DD): ")
             offensecode = input("Ofensa: ")
-            numoffenses = logic.get_crimes_by_range_code(control, initialDate,
-                                                        offensecode)
+            try:
+                numoffenses = logic.get_crimes_by_range_code(
+                    control, initialDate, offensecode)
+            except ValueError:
+                print("\nLa fecha debe tener el formato YYYY-MM-DD.")
+                continue
             print("\nTotal de ofensas tipo: " + offensecode + " en esa fecha:  " +
                 str(numoffenses))
-        elif int(inputs[0]) == 5:
-            # TODO lab 9, implementar el I/O e invocar las funcions de la opcion 5
+        elif option == 5:
+            if control is None:
+                print("\nDebe inicializar el analizador primero.")
+                continue
             print("\nBuscando crimenes en un rango de areas: ")
-            initialArea = input("Area incial: ")
-            finalArea = input("Area final")
-            area = logic.get_crimes_by_range_area(control, initialArea, finalArea)
-            print("\nTotal de ofensas en el area: "  +
-                            str(area))
+            initialArea = input("Area inicial: ")
+            finalArea = input("Area final: ")
+            try:
+                area = logic.get_crimes_by_range_area(
+                    control, initialArea, finalArea)
+            except ValueError:
+                print("\nLas areas deben ser números enteros.")
+                continue
+            print("\nTotal de crimenes en el rango de areas: " + str(area))
         else:
             sys.exit(0)
     sys.exit(0)

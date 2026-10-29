@@ -96,6 +96,8 @@ def new_map():
 
 
 def put(my_map, key, value):
+    if "size" not in my_map:
+        my_map["size"] = size_tree(my_map.get("root"))
     old_node = get_node(my_map["root"], key)
     my_map["root"] = insert_node(my_map["root"], key, value)
     my_map["root"]["color"] = rbt_node.BLACK
@@ -153,3 +155,77 @@ def key_set_tree(node, key_list):
         al.add_last(key_list, node["key"])
         key_set_tree(node["right"], key_list)
     return key_list
+
+
+def value_set(my_rbt):
+    return value_set_tree(my_rbt["root"], al.new_list())
+
+
+def value_set_tree(node, value_list):
+    if node is not None:
+        value_set_tree(node["left"], value_list)
+        al.add_last(value_list, node["value"])
+        value_set_tree(node["right"], value_list)
+    return value_list
+
+
+def get_min_node(node):
+    if node is None or node["left"] is None:
+        return node
+    return get_min_node(node["left"])
+
+
+def get_min(my_rbt):
+    node = get_min_node(my_rbt["root"])
+    return None if node is None else node["key"]
+
+
+def get_max_node(node):
+    if node is None or node["right"] is None:
+        return node
+    return get_max_node(node["right"])
+
+
+def get_max(my_rbt):
+    node = get_max_node(my_rbt["root"])
+    return None if node is None else node["key"]
+
+
+def height_tree(node):
+    if node is None:
+        return 0
+    return 1 + max(height_tree(node["left"]), height_tree(node["right"]))
+
+
+def height(my_rbt):
+    return height_tree(my_rbt["root"])
+
+
+def keys_range(node, key_lo, key_hi, key_list):
+    if node is not None:
+        if key_lo < node["key"]:
+            keys_range(node["left"], key_lo, key_hi, key_list)
+        if key_lo <= node["key"] <= key_hi:
+            al.add_last(key_list, node["key"])
+        if node["key"] < key_hi:
+            keys_range(node["right"], key_lo, key_hi, key_list)
+    return key_list
+
+
+def keys(my_rbt, key_initial, key_final):
+    return keys_range(my_rbt["root"], key_initial, key_final, al.new_list())
+
+
+def values_range(node, key_lo, key_hi, value_list):
+    if node is not None:
+        if key_lo < node["key"]:
+            values_range(node["left"], key_lo, key_hi, value_list)
+        if key_lo <= node["key"] <= key_hi:
+            al.add_last(value_list, node["value"])
+        if node["key"] < key_hi:
+            values_range(node["right"], key_lo, key_hi, value_list)
+    return value_list
+
+
+def values(my_rbt, key_initial, key_final):
+    return values_range(my_rbt["root"], key_initial, key_final, al.new_list())
